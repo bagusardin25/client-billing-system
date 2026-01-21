@@ -1,0 +1,109 @@
+/* Admin Dark Mode Overrides */
+html[data-bs-theme="dark"] {
+    /* Main Body Colors */
+    --bs-body-bg: #0f172a;
+    /* Slate 900 */
+    --bs-body-color: #cbd5e1;
+    /* Slate 300 */
+
+    /* Card Overrides */
+    --bs-card-bg: #1e293b;
+    /* Slate 800 */
+    --bs-card-color: #cbd5e1;
+    --bs-card-border-color: #334155;
+    /* Slate 700 */
+
+    /* Dropdown Overrides */
+    --bs-dropdown-bg: #1e293b;
+    --bs-dropdown-color: #cbd5e1;
+    --bs-dropdown-border-color: #334155;
+    --bs-dropdown-link-color: #cbd5e1;
+    --bs-dropdown-link-hover-bg: #334155;
+    --bs-dropdown-link-hover-color: #fff;
+
+    /* Table Overrides */
+    --bs-table-color: #cbd5e1;
+    --bs-table-bg: transparent;
+    --bs-table-border-color: #334155;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+
+    /* Form Inputs */
+    --bs-body-bg-rgb: 15, 23, 42;
+    /* Fixes some bg opacity issues */
+
+    /* Custom Variables from Layout */
+    --header-bg: #1e293b;
+    --header-text: #fff;
+    --sidebar-bg: #0f172a;
+    --sidebar-text: #cbd5e1;
+    --sidebar-border: #334155;
+    --body-bg: #0f172a;
+    /* Match --bs-body-bg */
+}
+
+/* Ensure text visibility on dark backgrounds if not covered above */
+[data-bs-theme="dark"] .text-dark {
+    color: #f8fafc !important;
+    /* Invert text-dark to light */
+}
+
+[data-bs-theme="dark"] .bg-white {
+    background-color: #1e293b !important;
+    /* Invert bg-white to dark slate */
+}
+
+[data-bs-theme="dark"] .border {
+    border-color: #334155 !important;
+}
+
+/* Specific component fixes */
+html[data-bs-theme="dark"] .card {
+    background-color: var(--bs-card-bg);
+    border-color: var(--bs-card-border-color);
+}
+
+html[data-bs-theme="dark"] .bg-light {
+    background-color: #334155 !important;
+    /* Slate 700 - Lighter than card bg for headers/footers */
+    color: #cbd5e1 !important;
+}
+
+html[data-bs-theme="dark"] .bg-white {
+    background-color: #1e293b !important;
+    /* Match card bg */
+    color: #cbd5e1 !important;
+}
+
+html[data-bs-theme="dark"] .text-secondary {
+    color: #94a3b8 !important;
+    /* Slate 400 */
+}
+
+/* Fix Form Inputs */
+html[data-bs-theme="dark"] .form-control,
+html[data-bs-theme="dark"] .form-select {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+html[data-bs-theme="dark"] .form-control:focus,
+html[data-bs-theme="dark"] .form-select:focus {
+    background-color: #0f172a !important;
+    border-color: #3498db !important;
+    color: #fff !important;
+}
+
+/* Fix Main Header Border */
+html[data-bs-theme="dark"] .main-header {
+    border-bottom-color: #334155 !important;
+}
+
+/* Fix Utility Borders */
+html[data-bs-theme="dark"] .border-secondary {
+    border-color: #334155 !important;
+}
+
+html[data-bs-theme="dark"] .border-bottom {
+    border-bottom-color: #334155 !important;
+}
