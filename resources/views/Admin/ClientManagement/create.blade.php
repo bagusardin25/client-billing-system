@@ -1,4 +1,4 @@
-<x-admin-layout 
+.....<x-admin-layout 
     title="Create Client" 
     :active="'clients'"
     :breadcrumbs="[
@@ -9,15 +9,18 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <!-- Header -->
-            <div class="mb-4">
-                <a href="{{ route('clients.index') }}" class="text-decoration-none text-secondary small fw-bold mb-2 d-inline-block">
-                    <i class="bi bi-arrow-left me-1"></i> Back to List
-                </a>
-                <h1 class="h3 fw-bold text-dark">Add New Client</h1>
-                <p class="text-secondary">Enter the client's business and contact details below.</p>
-            </div>
+            <x-admin.page-header 
+                title="Add New Client" 
+                subtitle="Enter the client's business and contact details below."
+            >
+                <x-slot:actions>
+                    <a href="{{ route('clients.index') }}" class="btn btn-light text-secondary d-flex align-items-center gap-2 shadow-sm">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                </x-slot:actions>
+            </x-admin.page-header>
 
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4 p-md-5">
                     <form action="{{ route('clients.store') }}" method="POST">
                         @csrf

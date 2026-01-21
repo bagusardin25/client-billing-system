@@ -102,4 +102,66 @@ class ClientController extends Controller
         return redirect()->route('clients.index')
             ->with('success', 'Client berhasil dihapus.');
     }
+
+    /**
+     * Send WhatsApp reminder to client.
+     */
+    public function sendWhatsAppReminder(Client $client)
+    {
+        // Validate phone number exists
+        if (empty($client->no_telepon)) {
+            return redirect()->route('clients.index')
+                ->with('error', 'Nomor telepon client tidak tersedia.');
+        }
+
+        // Format phone number (ensure it starts with 62)
+        $phone = $this->formatPhoneNumber($client->no_telepon);
+
+        // Generate message
+        $message = $this->generateReminderMessage($client);
+
+        // Build WhatsApp URL
+        $whatsappUrl = 'https://wa.me/' . $phone . '?text=' . urlencode($message);
+
+        return redirect()->away($whatsappUrl);
+    }
+
+    /**
+     * Format phone number to international format (62xxx).
+     */
+    private function formatPhoneNumber(string $phone): string
+    {
+        // Remove all non-numeric characters
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+
+        // Convert leading 0 to 62
+        if (str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        // Add 62 if not present
+        if (!str_starts_with($phone, '62')) {
+            $phone = '62' . $phone;
+        }
+
+        return $phone;
+    }
+
+    /**
+     * Generate reminder message for WhatsApp.
+     */
+    private function generateReminderMessage(Client $client): string
+    {
+        $nama = $client->nama_client;
+        $perusahaan = $client->perusahaan ?? 'Personal';
+        $bulan = $client->bulan ?? now()->translatedFormat('F Y');
+        $tagihan = 'Rp ' . number_format($client->tagihan ?? 0, 0, ',', '.');
+
+        return "Halo *{$nama}* ({$perusahaan}),\n\n"
+            . "Kami ingin mengingatkan mengenai tagihan Anda untuk periode *{$bulan}*.\n\n"
+            . "💰 *Total Tagihan:* {$tagihan}\n\n"
+            . "Mohon segera lakukan pembayaran untuk menghindari keterlambatan.\n\n"
+            . "Terima kasih atas kerjasamanya.\n"
+            . "— *PyramidSoft*";
+    }
 }

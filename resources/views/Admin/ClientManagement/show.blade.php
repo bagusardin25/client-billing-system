@@ -7,7 +7,7 @@
     ]"
 >
     <!-- Profile Header -->
-    <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+    <div class="card border-0 shadow-sm mb-4 overflow-hidden rounded-4">
         <div class="card-body p-0">
             <div class="bg-primary bg-gradient p-5 text-white">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
@@ -87,7 +87,7 @@
     <div class="row g-4">
         <!-- Sidebar Info -->
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden">
                 <div class="card-header bg-white py-3">
                     <h6 class="fw-bold mb-0 text-dark">About Client</h6>
                 </div>
@@ -110,7 +110,7 @@
 
         <!-- Main Tabs -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-header bg-white p-0 border-bottom-0">
                     <ul class="nav nav-tabs nav-fill border-bottom" id="clientTabs" role="tablist">
                          <li class="nav-item" role="presentation">
@@ -164,8 +164,8 @@
                         <!-- Invoices Tab -->
                         <div class="tab-pane fade" id="invoices" role="tabpanel">
                             <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light bg-opacity-50">
-                                <h6 class="mb-0 fw-bold text-secondary">Billing History</h6>
-                                <a href="{{ route('invoices.create', ['client_id' => $client->id]) }}" class="btn btn-sm btn-primary">
+                                <h6 class="mb-0 fw-bold text-secondary text-uppercase small">TAGIHAN INVOICE</h6>
+                                <a href="{{ route('invoices.create', ['client_id' => $client->id]) }}" class="btn btn-sm btn-primary shadow-sm">
                                     <i class="bi bi-plus-lg"></i> Create Invoice
                                 </a>
                             </div>
@@ -173,31 +173,38 @@
                             @if($client->invoices->count() > 0)
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0">
-                                        <thead class="bg-light">
+                                        <thead class="bg-light bg-opacity-50">
                                             <tr>
-                                                <th class="ps-4">Invoice #</th>
-                                                <th>Date</th>
-                                                <th>Amount</th>
-                                                <th class="text-end pe-4">Status</th>
+                                                <th class="ps-4 py-3 text-secondary text-uppercase fw-bold text-xs tracking-wide text-center" style="width: 60px;">No</th>
+                                                <th class="py-3 text-secondary text-uppercase fw-bold text-xs tracking-wide text-center">Bulan/Tahun</th>
+                                                <th class="py-3 text-secondary text-uppercase fw-bold text-xs tracking-wide text-center">Status</th>
+                                                <th class="text-end pe-4 py-3 text-secondary text-uppercase fw-bold text-xs tracking-wide">Tagihan</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            @foreach($client->invoices->take(5) as $invoice)
+                                        <tbody class="divide-y divide-secondary divide-opacity-10">
+                                            @foreach($client->invoices as $index => $invoice)
                                                 <tr>
-                                                    <td class="ps-4">
-                                                        <a href="{{ route('invoices.show', $invoice) }}" class="fw-bold text-primary text-decoration-none">
-                                                            {{ $invoice->no_invoice ?? 'INV-'.$invoice->id }}
-                                                        </a>
+                                                    <td class="ps-4 text-center text-secondary">{{ $index + 1 }}</td>
+                                                    <td class="text-center fw-medium text-dark">
+                                                        {{ str_pad($invoice->bulan, 2, '0', STR_PAD_LEFT) }} / {{ $invoice->tahun }}
                                                     </td>
-                                                    <td class="text-secondary">{{ $invoice->created_at->format('d M Y') }}</td>
-                                                    <td class="fw-bold text-dark">Rp {{ number_format($invoice->total ?? 0, 0, ',', '.') }}</td>
-                                                    <td class="text-end pe-4">
-                                                        <span class="badge {{ ($invoice->status ?? 0) == 1 ? 'bg-success' : 'bg-warning' }}">
-                                                            {{ ($invoice->status ?? 0) == 1 ? 'Paid' : 'Unpaid' }}
+                                                    <td class="text-center">
+                                                        <span class="badge {{ ($invoice->status_pembayaran ?? 0) == 1 ? 'bg-success' : 'bg-danger' }} rounded-pill px-3">
+                                                            {{ ($invoice->status_pembayaran ?? 0) == 1 ? 'Lunas' : 'Belum Lunas' }}
                                                         </span>
+                                                    </td>
+                                                    <td class="text-end pe-4 fw-medium text-dark">
+                                                        Rp {{ number_format($invoice->tagihan ?? 0, 0, ',', '.') }}
                                                     </td>
                                                 </tr>
                                             @endforeach
+                                            <!-- Total Row -->
+                                            <tr class="bg-light bg-opacity-25">
+                                                <td colspan="3" class="text-end py-3 fw-bold text-secondary">Total Tagihan :</td>
+                                                <td class="text-end pe-4 py-3 fs-5 fw-bold text-dark">
+                                                    Rp. {{ number_format($client->invoices->sum('tagihan'), 2, ',', '.') }}
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>

@@ -10,23 +10,27 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <!-- Header -->
-            <div class="mb-4 d-flex justify-content-between align-items-center">
-                <div>
-                    <a href="{{ route('clients.index') }}" class="text-decoration-none text-secondary small fw-bold mb-2 d-inline-block">
-                        <i class="bi bi-arrow-left me-1"></i> Back to List
-                    </a>
-                    <h1 class="h3 fw-bold text-dark">Edit Client</h1>
-                </div>
-                <!-- Delete Action (optional place for it) -->
-                <form action="{{ route('clients.destroy', $client) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                        <i class="bi bi-trash me-2"></i>Delete
-                    </button>
-                </form>
-            </div>
+            <x-admin.page-header 
+                title="Edit Client" 
+                subtitle="Update client information and billing details."
+            >
+                <x-slot:actions>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('clients.index') }}" class="btn btn-light text-secondary d-flex align-items-center gap-2 shadow-sm">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <!-- Delete Action -->
+                        <form action="{{ route('clients.destroy', $client) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn btn-danger d-flex align-items-center gap-2 shadow-sm">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </x-slot:actions>
+            </x-admin.page-header>
 
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4 p-md-5">
                     <form action="{{ route('clients.update', $client) }}" method="POST">
                         @csrf

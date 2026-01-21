@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
 
     // Client Management
     Route::resource('clients', ClientController::class);
+    Route::get('clients/{client}/whatsapp-reminder', [ClientController::class, 'sendWhatsAppReminder'])
+        ->name('clients.whatsapp-reminder');
 
     // Invoice Management
     Route::resource('invoices', InvoiceController::class);
