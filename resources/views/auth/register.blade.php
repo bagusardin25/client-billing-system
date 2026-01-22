@@ -3,9 +3,9 @@
         <div class="text-center mb-5">
             <div class="mb-4">
                  <!-- Icon Circle -->
-                <div class="mb-4">
+                <div class="mb-4 d-inline-block p-3 rounded-4 bg-dark shadow-sm">
                      <!-- Logo -->
-                    <x-application-logo style="width: 180px; height: auto;" class="img-fluid" />
+                    <x-application-logo style="width: 180px; height: auto; mix-blend-mode: screen;" class="img-fluid" />
                 </div>
             </div>
             <h4 class="fw-bold text-dark mb-1">Create Account</h4>
