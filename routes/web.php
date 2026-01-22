@@ -15,9 +15,10 @@ Route::get('/', function () {
 });
 
 // Dashboard
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// Dashboard (Redirect to Clients)
+Route::get('/dashboard', function () {
+    return redirect()->route('clients.index');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 // Protected Routes
 Route::middleware('auth')->group(function () {
