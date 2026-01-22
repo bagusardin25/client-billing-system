@@ -72,17 +72,17 @@
         
         <ul class="nav flex-column mb-4">
             <li class="nav-item">
-                <a href="#" class="nav-link {{ $active === 'laporan-pemasukan' ? 'active' : '' }}">
+                <a href="{{ route('laporan.pemasukan') }}" class="nav-link {{ $active === 'laporan.pemasukan' ? 'active' : '' }}">
                     <i class="material-icons-round">description</i> <span>Laporan Pemasukan</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link {{ $active === 'laporan-pengeluaran' ? 'active' : '' }}">
+                <a href="{{ route('laporan.pengeluaran') }}" class="nav-link {{ $active === 'laporan.pengeluaran' ? 'active' : '' }}">
                     <i class="material-icons-round">request_quote</i> <span>Laporan Pengeluaran</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link {{ $active === 'laba-rugi' ? 'active' : '' }}">
+                <a href="{{ route('laporan.laba-rugi') }}" class="nav-link {{ $active === 'laporan.laba-rugi' ? 'active' : '' }}">
                     <i class="material-icons-round">pie_chart</i> <span>Laba & Rugi</span>
                 </a>
             </li>

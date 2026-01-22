@@ -11,7 +11,7 @@ use App\Http\Controllers\PengeluaranController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 // Dashboard
@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
         ->name('clients.whatsapp-reminder');
 
     // Invoice Management
+    Route::put('invoices/{invoice}/mark-paid', [InvoiceController::class, 'markAsPaid'])->name('invoices.mark-paid');
     Route::resource('invoices', InvoiceController::class);
 
     // Jenis Biaya Management
@@ -45,6 +46,13 @@ Route::middleware('auth')->group(function () {
 
     // Pengeluaran (Expense)
     Route::resource('pengeluaran', PengeluaranController::class);
+
+    // Laporan (Reports)
+    Route::controller(App\Http\Controllers\LaporanController::class)->prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/pemasukan', 'pemasukan')->name('pemasukan');
+        Route::get('/pengeluaran', 'pengeluaran')->name('pengeluaran');
+        Route::get('/laba-rugi', 'labaRugi')->name('laba-rugi');
+    });
 });
 
 require __DIR__.'/auth.php';

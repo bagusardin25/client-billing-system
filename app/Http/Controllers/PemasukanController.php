@@ -14,20 +14,22 @@ class PemasukanController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $pemasukan = Pemasukan::with('jenisBiaya')->latest()->paginate(10);
-        $totalPemasukan = Pemasukan::sum('nominal');
-        return view('Admin.pemasukan.index', compact('pemasukan', 'totalPemasukan'));
-    }
+        $query = Pemasukan::with('jenisBiaya')->latest();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): View
-    {
-        $jenisBiaya = JenisBiaya::orderBy('nama_biaya')->get();
-        return view('Admin.pemasukan.create', compact('jenisBiaya'));
+        if ($request->filled('bulan')) {
+            $query->whereMonth('tanggal', $request->bulan);
+        }
+
+        if ($request->filled('tahun')) {
+            $query->whereYear('tanggal', $request->tahun);
+        }
+
+        $pemasukan = $query->paginate(10)->withQueryString();
+        $totalPemasukan = $query->sum('nominal'); // Sum of filtered results
+        
+        return view('Admin.pemasukan.index', compact('pemasukan', 'totalPemasukan'));
     }
 
     /**
@@ -37,12 +39,12 @@ class PemasukanController extends Controller
     {
         $validated = $request->validate([
             'id_jenis_biaya' => 'required|exists:jenis_biaya,id',
-            'nama_biaya1' => 'required|string|max:50',
             'keterangan' => 'required|string|max:225',
             'nominal' => 'required|numeric|min:0',
-            'tanggal' => 'required|string|max:50',
+            'tanggal' => 'required|date',
         ]);
 
+        $validated['nama_biaya1'] = $request->input('nama_biaya1', 'Pemasukan Manual');
         $validated['id_user'] = Auth::id();
 
         Pemasukan::create($validated);
@@ -61,13 +63,8 @@ class PemasukanController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Update the specified resource in storage.
      */
-    public function edit(Pemasukan $pemasukan): View
-    {
-        $jenisBiaya = JenisBiaya::orderBy('nama_biaya')->get();
-        return view('Admin.pemasukan.edit', compact('pemasukan', 'jenisBiaya'));
-    }
 
     /**
      * Update the specified resource in storage.
@@ -76,11 +73,12 @@ class PemasukanController extends Controller
     {
         $validated = $request->validate([
             'id_jenis_biaya' => 'required|exists:jenis_biaya,id',
-            'nama_biaya1' => 'required|string|max:50',
             'keterangan' => 'required|string|max:225',
             'nominal' => 'required|numeric|min:0',
-            'tanggal' => 'required|string|max:50',
+            'tanggal' => 'required|date',
         ]);
+
+        $validated['nama_biaya1'] = $request->input('nama_biaya1', 'Pemasukan Manual');
 
         $pemasukan->update($validated);
 
