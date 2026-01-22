@@ -15,7 +15,7 @@
     <div class="sidebar-user-panel">
         <div class="d-flex align-items-center gap-3">
             <img src="https://ui-avatars.com/api/?name=Owner&background=e74c3c&color=fff" 
-                 alt="Admin Profile" class="rounded-circle border border-2 border-primary border-opacity-25" style="width: 40px; height: 40px;">
+                 alt="Admin Profile" class="rounded-circle border border-primary border-opacity-25" style="width: 40px; height: 40px;">
             <div>
                 <p class="mb-0 text-sm fw-bold text-white">Owner</p>
                 <p class="mb-0 text-xs text-secondary opacity-75">Owner Account</p>

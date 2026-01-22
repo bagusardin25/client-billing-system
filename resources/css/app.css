@@ -1,3 +1,2 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Bootstrap 5 is loaded via CDN in layouts */
+/* Add custom global styles here if needed */
