@@ -2,13 +2,9 @@
 
 <nav class="sidebar d-flex flex-column text-secondary">
     <!-- Brand -->
-    <div class="sidebar-brand">
-        <div class="d-flex align-items-center gap-3">
-            <div class="d-flex align-items-center justify-content-center rounded-3 bg-primary" style="width: 40px; height: 40px;">
-                <i class="material-icons-round text-white fs-4">layers</i>
-            </div>
-            <span class="fs-5 fw-bold text-white tracking-tight">PYRAMID<span class="text-primary">SOFT</span></span>
-        </div>
+    <div class="sidebar-brand text-center d-flex justify-content-center align-items-center py-3">
+        <!-- Logo -->
+        <img src="{{ asset('img/logo.jpg') }}" alt="PyramidSoft Logo" class="img-fluid" style="max-height: 50px; width: auto; mix-blend-mode: screen;">
     </div>
     
     <!-- User Profile Panel -->

@@ -35,7 +35,7 @@
                 <div class="col-md-8 col-lg-6 text-center">
                     <div class="card shadow-lg rounded-4 p-5">
                         <div class="mb-4">
-                            <i class="bi bi-briefcase-fill text-primary" style="font-size: 3rem;"></i>
+                            <x-application-logo style="width: 120px; height: auto;" />
                         </div>
                         <h1 class="fw-bold mb-3 display-5">{{ config('app.name', 'Client Billing') }}</h1>
                         <p class="text-secondary mb-5 lead">
