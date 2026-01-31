@@ -33,8 +33,8 @@
                             id="sendAllReminderBtn"
                             onclick="sendAllReminders()"
                             style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;">
-                        <i class="bi bi-send-fill"></i>
-                        <span class="fw-medium small">Kirim Semua Reminder</span>
+                        <i class="bi bi-whatsapp"></i>
+                        <span class="fw-medium small">Kirim Semua Invoice</span>
                     </button>
                 </div>
             </div>
@@ -67,7 +67,7 @@
                             <td class="px-4 py-3">
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="{{ route('clients.whatsapp-reminder', $client) }}" target="_blank" class="btn btn-sm btn-success text-white d-flex align-items-center gap-1 px-3 py-1 rounded-2 shadow-sm text-decoration-none" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
-                                        <i class="material-icons-round" style="font-size: 14px;">send</i> Kirim
+                                        <i class="bi bi-whatsapp" style="font-size: 14px;"></i> Kirim
                                     </a>
                                     
                                     <a href="{{ route('cabang-usaha.index', ['client_id' => $client->id]) }}" class="btn btn-sm btn-primary text-white d-flex align-items-center gap-1 px-3 py-1 rounded-2 shadow-sm text-decoration-none" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
