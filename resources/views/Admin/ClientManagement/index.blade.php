@@ -4,12 +4,16 @@
     :breadcrumbs="[['label' => 'Clients']]"
 >
     <!-- Page Header -->
-    <x-admin.page-header 
-        title="Client Management" 
-        subtitle="Overview of all active clients for <span class='fw-bold text-primary'>{{ now()->translatedFormat('F Y') }}</span>"
-        action-url="{{ route('clients.create') }}"
-        action-label="Add New Client"
-    />
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+        <div>
+            <h1 class="h2 fw-bold text-body-emphasis mb-1">Client Management</h1>
+            <p class="text-secondary small mb-0">Overview of all active clients for <span class='fw-bold text-primary'>{{ now()->translatedFormat('F Y') }}</span></p>
+        </div>
+        <button type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addClientModal">
+            <i class="bi bi-plus-lg"></i>
+            <span>Add New Client</span>
+        </button>
+    </div>
 
     <!-- Main Content Card -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -115,6 +119,85 @@
                         {{ $clients->links('pagination::bootstrap-5') }}
                     @endif
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Client Modal -->
+    <div class="modal fade" id="addClientModal" tabindex="-1" aria-labelledby="addClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold" id="addClientModalLabel">
+                        <i class="bi bi-person-plus-fill text-primary me-2"></i>Tambah Client Baru
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <form id="addClientForm" action="{{ route('clients.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body px-4 py-3">
+                        <p class="text-secondary small mb-4">Masukkan informasi bisnis dan kontak client di bawah ini.</p>
+                        
+                        <h6 class="text-uppercase text-secondary fw-bold small mb-3 tracking-wide">Informasi Client</h6>
+                        
+                        <div class="row g-3">
+                            <!-- Basic Info -->
+                            <div class="col-md-6">
+                                <label for="nama_client" class="form-label fw-medium text-dark">Nama Lengkap <span class="text-danger">*</span></label>
+                                <input type="text" name="nama_client" id="nama_client" class="form-control" placeholder="Contoh: Pak Budi" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="perusahaan" class="form-label fw-medium text-dark">Nama Perusahaan</label>
+                                <input type="text" name="perusahaan" id="perusahaan" class="form-control" placeholder="Contoh: PT Maju Jaya">
+                            </div>
+
+                            <!-- Contact Info -->
+                            <div class="col-md-6">
+                                <label for="no_telepon" class="form-label fw-medium text-dark">Nomor Telepon</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-secondary"><i class="bi bi-telephone"></i></span>
+                                    <input type="text" name="no_telepon" id="no_telepon" class="form-control" placeholder="08...">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="jabatan" class="form-label fw-medium text-dark">Jabatan</label>
+                                <input type="text" name="jabatan" id="jabatan" class="form-control" placeholder="Contoh: Manager">
+                            </div>
+
+                            <div class="col-12">
+                                <label for="alamat" class="form-label fw-medium text-dark">Alamat</label>
+                                <textarea name="alamat" id="alamat" rows="2" class="form-control" placeholder="Alamat lengkap kantor"></textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 border-secondary-subtle">
+
+                        <h6 class="text-uppercase text-secondary fw-bold small mb-3 tracking-wide">Detail Tagihan</h6>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="kode_client" class="form-label fw-medium text-dark">Kode Client</label>
+                                <input type="text" name="kode_client" id="kode_client" class="form-control" placeholder="Contoh: CL-001">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="tagihan" class="form-label fw-medium text-dark">Tagihan per Bulan</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light fw-bold text-secondary">Rp</span>
+                                    <input type="number" name="tagihan" id="tagihan" class="form-control" value="0" min="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 px-4 pb-4 pt-2">
+                        <button type="button" class="btn btn-light text-secondary px-4" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary px-4" id="submitClientBtn">
+                            <i class="bi bi-check-lg me-1"></i> Simpan Client
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
