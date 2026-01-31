@@ -27,24 +27,14 @@
                     </form>
                 </div>
                 
-                <!-- Auto Reminder Toggle -->
+                <!-- Kirim Semua Reminder Button -->
                 <div class="d-flex align-items-center gap-2">
                     <button type="button" class="btn btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm" 
-                            id="autoReminderToggle"
-                            data-active="false"
-                            onclick="toggleAutoReminder(this)"
+                            id="sendAllReminderBtn"
+                            onclick="sendAllReminders()"
                             style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;">
-                        <i class="bi bi-bell-fill"></i>
-                        <span class="fw-medium small">Auto Reminder</span>
-                        <span class="badge bg-white text-success ms-1 small" id="reminderStatus">OFF</span>
-                    </button>
-                    
-                    <!-- Settings Button (opens modal) -->
-                    <button type="button" class="btn btn-sm btn-outline-secondary border-opacity-25 bg-white text-secondary px-2 py-2 rounded-3" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#reminderSettingsModal"
-                            title="Pengaturan Reminder">
-                        <i class="bi bi-gear"></i>
+                        <i class="bi bi-send-fill"></i>
+                        <span class="fw-medium small">Kirim Semua Reminder</span>
                     </button>
                 </div>
             </div>
@@ -129,118 +119,59 @@
         </div>
     </div>
 
-    <!-- Reminder Settings Modal -->
-    <div class="modal fade" id="reminderSettingsModal" tabindex="-1" aria-labelledby="reminderSettingsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold" id="reminderSettingsModalLabel">
-                        <i class="bi bi-bell-fill text-success me-2"></i>Pengaturan Auto Reminder
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body pt-2">
-                    <p class="text-secondary small mb-4">Atur jadwal dan template pesan untuk pengiriman reminder otomatis ke semua klien.</p>
-                    
-                    <form id="reminderSettingsForm">
-                        <!-- Send Day -->
-                        <div class="mb-4">
-                            <label for="sendDay" class="form-label fw-medium text-dark">Tanggal Pengiriman</label>
-                            <select id="sendDay" class="form-select rounded-3">
-                                @for($i = 1; $i <= 28; $i++)
-                                    <option value="{{ $i }}" {{ $i == 1 ? 'selected' : '' }}>Tanggal {{ $i }} setiap bulan</option>
-                                @endfor
-                            </select>
-                            <div class="form-text">Reminder akan dikirim pada tanggal ini setiap bulannya.</div>
-                        </div>
-                        
-                        <!-- Message Template -->
-                        <div class="mb-4">
-                            <label for="messageTemplate" class="form-label fw-medium text-dark">Template Pesan</label>
-                            <textarea id="messageTemplate" class="form-control rounded-3" rows="6" placeholder="Tulis template pesan...">Halo *{nama}* ({perusahaan}),
-
-Kami ingin mengingatkan mengenai tagihan Anda untuk periode *{bulan}*.
-
-💰 *Total Tagihan:* {tagihan}
-
-Mohon segera lakukan pembayaran untuk menghindari keterlambatan.
-
-Terima kasih atas kerjasamanya.
-— *PyramidSoft*</textarea>
-                            <div class="form-text">
-                                Placeholder yang tersedia: <code>{nama}</code>, <code>{perusahaan}</code>, <code>{bulan}</code>, <code>{tagihan}</code>
-                            </div>
-                        </div>
-                        
-                        <!-- Preview -->
-                        <div class="mb-3">
-                            <label class="form-label fw-medium text-dark">Preview Pesan</label>
-                            <div id="messagePreview" class="p-3 bg-light rounded-3 small" style="white-space: pre-wrap; font-family: inherit;">
-                                Halo <strong>Pak Herry</strong> (Orzora Kosmetic),
-
-Kami ingin mengingatkan mengenai tagihan Anda untuk periode <strong>Januari 2026</strong>.
-
-💰 <strong>Total Tagihan:</strong> Rp 1.150.000
-
-Mohon segera lakukan pembayaran untuk menghindari keterlambatan.
-
-Terima kasih atas kerjasamanya.
-— <strong>PyramidSoft</strong>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light text-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary px-4" onclick="saveReminderSettings()">
-                        <i class="bi bi-check-lg me-1"></i> Simpan Pengaturan
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 @push('scripts')
 <script>
-    // Toggle Auto Reminder
-    function toggleAutoReminder(btn) {
-        const isActive = btn.dataset.active === 'true';
-        const newState = !isActive;
+    // Kirim Semua Reminder - Membuka WhatsApp untuk semua client secara berurutan
+    function sendAllReminders() {
+        const btn = document.getElementById('sendAllReminderBtn');
+        const originalHTML = btn.innerHTML;
         
-        btn.dataset.active = newState;
-        const statusBadge = document.getElementById('reminderStatus');
+        // Disable button dan tampilkan loading
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> <span class="fw-medium small">Mengirim...</span>';
         
-        if (newState) {
-            btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-            statusBadge.textContent = 'ON';
-            statusBadge.classList.remove('text-danger', 'text-secondary');
-            statusBadge.classList.add('text-success');
-            showToast('Auto Reminder diaktifkan', 'success');
-        } else {
-            btn.style.background = 'linear-gradient(135deg, #64748b 0%, #475569 100%)';
-            statusBadge.textContent = 'OFF';
-            statusBadge.classList.remove('text-success');
-            statusBadge.classList.add('text-secondary');
-            showToast('Auto Reminder dinonaktifkan', 'warning');
+        // Ambil semua link WhatsApp reminder
+        const reminderLinks = document.querySelectorAll('a[href*="whatsapp-reminder"]');
+        
+        if (reminderLinks.length === 0) {
+            showToast('Tidak ada client yang bisa dikirim reminder', 'warning');
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            return;
         }
         
-        // TODO: Save state to backend
-        // fetch('/api/reminder-settings', { method: 'POST', body: JSON.stringify({ is_active: newState }) });
-    }
-    
-    // Save Reminder Settings
-    function saveReminderSettings() {
-        const sendDay = document.getElementById('sendDay').value;
-        const messageTemplate = document.getElementById('messageTemplate').value;
+        // Konfirmasi sebelum mengirim
+        if (!confirm(`Apakah Anda yakin ingin mengirim reminder ke ${reminderLinks.length} client?\n\nSistem akan membuka ${reminderLinks.length} tab WhatsApp.`)) {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            return;
+        }
         
-        // TODO: Save to backend
-        console.log('Saving settings:', { sendDay, messageTemplate });
+        // Buka semua link WhatsApp dengan delay untuk menghindari blocking
+        let successCount = 0;
+        let index = 0;
         
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('reminderSettingsModal'));
-        modal.hide();
+        function openNextReminder() {
+            if (index < reminderLinks.length) {
+                const link = reminderLinks[index];
+                const newWindow = window.open(link.href, '_blank');
+                
+                if (newWindow) {
+                    successCount++;
+                }
+                
+                index++;
+                // Delay 500ms antar pembukaan untuk menghindari browser blocking
+                setTimeout(openNextReminder, 500);
+            } else {
+                // Selesai mengirim semua
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+                showToast(`Berhasil membuka ${successCount} dari ${reminderLinks.length} reminder WhatsApp`, 'success');
+            }
+        }
         
-        showToast('Pengaturan berhasil disimpan', 'success');
+        openNextReminder();
     }
     
     // Simple Toast Notification
@@ -254,20 +185,8 @@ Terima kasih atas kerjasamanya.
         setTimeout(() => {
             toast.style.animation = 'slideOut 0.3s ease';
             setTimeout(() => toast.remove(), 300);
-        }, 2500);
+        }, 3000);
     }
-    
-    // Update preview when template changes
-    document.getElementById('messageTemplate')?.addEventListener('input', function() {
-        const template = this.value;
-        const preview = template
-            .replace('{nama}', '<strong>Pak Herry</strong>')
-            .replace('{perusahaan}', 'Orzora Kosmetic')
-            .replace('{bulan}', '<strong>Januari 2026</strong>')
-            .replace('{tagihan}', 'Rp 1.150.000')
-            .replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-        document.getElementById('messagePreview').innerHTML = preview;
-    });
 </script>
 
 <style>
