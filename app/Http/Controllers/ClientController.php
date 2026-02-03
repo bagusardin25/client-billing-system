@@ -164,4 +164,94 @@ class ClientController extends Controller
             . "Terima kasih atas kerjasamanya.\n"
             . "— *PyramidSoft*";
     }
+
+    /**
+     * Send WhatsApp reminder via API (single client).
+     */
+    public function sendWhatsAppAPI(Client $client): RedirectResponse
+    {
+        // Validate phone number exists
+        if (empty($client->no_telepon)) {
+            return redirect()->route('clients.index')
+                ->with('error', 'Nomor telepon client tidak tersedia.');
+        }
+
+        $whatsapp = new \App\Services\WhatsAppService();
+
+        // Check if service is configured
+        if (!$whatsapp->isConfigured()) {
+            return redirect()->route('clients.index')
+                ->with('error', 'FONNTE_TOKEN belum dikonfigurasi. Silakan set di file .env');
+        }
+
+        $message = $this->generateReminderMessage($client);
+        $result = $whatsapp->sendMessage($client->no_telepon, $message);
+
+        // Log the message
+        \App\Models\WhatsAppLog::create([
+            'client_id' => $client->id,
+            'phone' => $client->no_telepon,
+            'message' => $message,
+            'status' => ($result['status'] ?? false) ? 'sent' : 'failed',
+            'response' => $result,
+        ]);
+
+        if ($result['status'] ?? false) {
+            return redirect()->route('clients.index')
+                ->with('success', "Pesan berhasil dikirim ke {$client->nama_client} via WhatsApp API.");
+        }
+
+        return redirect()->route('clients.index')
+            ->with('error', 'Gagal mengirim pesan: ' . ($result['reason'] ?? 'Unknown error'));
+    }
+
+    /**
+     * Send WhatsApp reminders to all clients via API.
+     */
+    public function sendBulkWhatsApp(): RedirectResponse
+    {
+        $whatsapp = new \App\Services\WhatsAppService();
+
+        // Check if service is configured
+        if (!$whatsapp->isConfigured()) {
+            return redirect()->route('clients.index')
+                ->with('error', 'FONNTE_TOKEN belum dikonfigurasi. Silakan set di file .env');
+        }
+
+        $clients = Client::whereNotNull('no_telepon')
+            ->where('no_telepon', '!=', '')
+            ->get();
+
+        if ($clients->isEmpty()) {
+            return redirect()->route('clients.index')
+                ->with('warning', 'Tidak ada client dengan nomor telepon yang valid.');
+        }
+
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach ($clients as $client) {
+            $message = $this->generateReminderMessage($client);
+            $result = $whatsapp->sendMessage($client->no_telepon, $message);
+
+            // Log the message
+            \App\Models\WhatsAppLog::create([
+                'client_id' => $client->id,
+                'phone' => $client->no_telepon,
+                'message' => $message,
+                'status' => ($result['status'] ?? false) ? 'sent' : 'failed',
+                'response' => $result,
+            ]);
+
+            if ($result['status'] ?? false) {
+                $successCount++;
+            } else {
+                $failCount++;
+            }
+        }
+
+        $totalClients = $clients->count();
+        return redirect()->route('clients.index')
+            ->with('success', "Selesai mengirim pesan ke {$totalClients} client. Berhasil: {$successCount}, Gagal: {$failCount}");
+    }
 }

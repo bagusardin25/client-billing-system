@@ -185,4 +185,125 @@ class InvoiceController extends Controller
         return redirect()->route('invoices.index')
             ->with('success', 'Invoice berhasil dihapus.');
     }
+
+    /**
+     * Send single invoice via WhatsApp API.
+     */
+    public function sendInvoiceWhatsApp(Invoice $invoice): RedirectResponse
+    {
+        $client = $invoice->client;
+
+        if (!$client || empty($client->no_telepon)) {
+            return redirect()->route('invoices.index')
+                ->with('error', 'Client tidak memiliki nomor telepon.');
+        }
+
+        $whatsapp = new \App\Services\WhatsAppService();
+
+        // Check if service is configured
+        if (!$whatsapp->isConfigured()) {
+            return redirect()->route('invoices.index')
+                ->with('error', 'FONNTE_TOKEN belum dikonfigurasi. Silakan set di file .env');
+        }
+
+        $message = $this->generateInvoiceMessage($invoice);
+        $result = $whatsapp->sendMessage($client->no_telepon, $message);
+
+        // Log the message
+        \App\Models\WhatsAppLog::create([
+            'client_id' => $client->id,
+            'invoice_id' => $invoice->id,
+            'phone' => $client->no_telepon,
+            'message' => $message,
+            'status' => ($result['status'] ?? false) ? 'sent' : 'failed',
+            'response' => $result,
+        ]);
+
+        if ($result['status'] ?? false) {
+            return redirect()->route('invoices.index')
+                ->with('success', "Invoice berhasil dikirim ke {$client->nama_client} via WhatsApp.");
+        }
+
+        return redirect()->route('invoices.index')
+            ->with('error', 'Gagal mengirim invoice: ' . ($result['reason'] ?? 'Unknown error'));
+    }
+
+    /**
+     * Send all unpaid invoices via WhatsApp API.
+     */
+    public function sendBulkInvoiceWhatsApp(Request $request): RedirectResponse
+    {
+        $whatsapp = new \App\Services\WhatsAppService();
+
+        // Check if service is configured
+        if (!$whatsapp->isConfigured()) {
+            return redirect()->route('invoices.index')
+                ->with('error', 'FONNTE_TOKEN belum dikonfigurasi. Silakan set di file .env');
+        }
+
+        // Get unpaid invoices with clients that have phone numbers
+        $invoices = Invoice::with('client')
+            ->where('status_pembayaran', 0)
+            ->whereHas('client', function ($query) {
+                $query->whereNotNull('no_telepon')
+                    ->where('no_telepon', '!=', '');
+            })
+            ->get();
+
+        if ($invoices->isEmpty()) {
+            return redirect()->route('invoices.index')
+                ->with('warning', 'Tidak ada invoice belum lunas dengan client yang memiliki nomor telepon.');
+        }
+
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach ($invoices as $invoice) {
+            $client = $invoice->client;
+            $message = $this->generateInvoiceMessage($invoice);
+            $result = $whatsapp->sendMessage($client->no_telepon, $message);
+
+            // Log the message
+            \App\Models\WhatsAppLog::create([
+                'client_id' => $client->id,
+                'invoice_id' => $invoice->id,
+                'phone' => $client->no_telepon,
+                'message' => $message,
+                'status' => ($result['status'] ?? false) ? 'sent' : 'failed',
+                'response' => $result,
+            ]);
+
+            if ($result['status'] ?? false) {
+                $successCount++;
+            } else {
+                $failCount++;
+            }
+        }
+
+        $totalInvoices = $invoices->count();
+        return redirect()->route('invoices.index')
+            ->with('success', "Selesai mengirim {$totalInvoices} invoice. Berhasil: {$successCount}, Gagal: {$failCount}");
+    }
+
+    /**
+     * Generate invoice message for WhatsApp.
+     */
+    private function generateInvoiceMessage(Invoice $invoice): string
+    {
+        $client = $invoice->client;
+        $nama = $client->nama_client ?? 'Pelanggan';
+        $perusahaan = $client->perusahaan ?? 'Personal';
+        $periode = $invoice->bulan . ' ' . $invoice->tahun;
+        $tagihan = 'Rp ' . number_format($invoice->tagihan, 0, ',', '.');
+        $kode = $invoice->kode_invoive;
+
+        return "Halo *{$nama}* ({$perusahaan}),\n\n"
+            . "Berikut adalah invoice Anda:\n\n"
+            . "📋 *No. Invoice:* {$kode}\n"
+            . "📅 *Periode:* {$periode}\n"
+            . "💰 *Total Tagihan:* {$tagihan}\n\n"
+            . "Mohon segera lakukan pembayaran.\n\n"
+            . "Terima kasih atas kerjasamanya.\n"
+            . "— *PyramidSoft*";
+    }
 }

@@ -31,15 +31,17 @@
                     </form>
                 </div>
                 
-                <!-- Kirim Semua Reminder Button -->
+                <!-- Kirim Semua Reminder Button-->
                 <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="btn btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm" 
-                            id="sendAllReminderBtn"
-                            onclick="sendAllReminders()"
-                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;">
-                        <i class="bi bi-whatsapp"></i>
-                        <span class="fw-medium small">Kirim Semua Invoice</span>
-                    </button>
+                    <form action="{{ route('clients.send-bulk-whatsapp') }}" method="POST" 
+                          onsubmit="return confirm('Kirim semua invoice ke client?')">
+                        @csrf
+                        <button type="submit" class="btn btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm" 
+                                style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;">
+                            <i class="bi bi-whatsapp"></i>
+                            <span class="fw-medium small">Kirim Semua Invoice</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

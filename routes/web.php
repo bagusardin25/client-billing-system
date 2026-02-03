@@ -31,9 +31,17 @@ Route::middleware('auth')->group(function () {
     Route::resource('clients', ClientController::class);
     Route::get('clients/{client}/whatsapp-reminder', [ClientController::class, 'sendWhatsAppReminder'])
         ->name('clients.whatsapp-reminder');
+    Route::post('clients/{client}/send-whatsapp', [ClientController::class, 'sendWhatsAppAPI'])
+        ->name('clients.send-whatsapp');
+    Route::post('clients/send-bulk-whatsapp', [ClientController::class, 'sendBulkWhatsApp'])
+        ->name('clients.send-bulk-whatsapp');
 
     // Invoice Management
     Route::put('invoices/{invoice}/mark-paid', [InvoiceController::class, 'markAsPaid'])->name('invoices.mark-paid');
+    Route::post('invoices/{invoice}/send-whatsapp', [InvoiceController::class, 'sendInvoiceWhatsApp'])
+        ->name('invoices.send-whatsapp');
+    Route::post('invoices/send-bulk-whatsapp', [InvoiceController::class, 'sendBulkInvoiceWhatsApp'])
+        ->name('invoices.send-bulk-whatsapp');
     Route::resource('invoices', InvoiceController::class);
 
     // Jenis Biaya Management

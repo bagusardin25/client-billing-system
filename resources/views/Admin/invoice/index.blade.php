@@ -9,6 +9,15 @@
         subtitle="Manage and track all client billing invoices."
     >
         <x-slot:actions>
+            <form action="{{ route('invoices.send-bulk-whatsapp') }}" method="POST" class="d-inline"
+                  onsubmit="return confirm('Kirim semua invoice BELUM LUNAS via WhatsApp API?\n\nPastikan FONNTE_TOKEN sudah dikonfigurasi.')">
+                @csrf
+                <button type="submit" class="btn d-flex align-items-center gap-2 shadow-sm me-2" 
+                        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;">
+                    <i class="bi bi-whatsapp"></i>
+                    Kirim Semua Invoice
+                </button>
+            </form>
             <button type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#createInvoiceModal">
                 <i class="bi bi-plus-lg"></i>
                 Create Invoice
@@ -101,9 +110,18 @@
                                     {{ ($invoice->status_pembayaran ?? 0) == 1 ? 'Lunas' : 'Belum Lunas' }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3">
                                 <div class="d-flex justify-content-center gap-2">
                                     @if(($invoice->status_pembayaran ?? 0) == 0)
+                                        <!-- Send Invoice via WhatsApp API -->
+                                        <form action="{{ route('invoices.send-whatsapp', $invoice) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success text-white d-flex align-items-center gap-1 px-2 py-1 rounded-2 shadow-sm" 
+                                                    title="Kirim Invoice via WhatsApp"
+                                                    style="font-size: 11px; font-weight: 700;">
+                                                <i class="bi bi-whatsapp" style="font-size: 14px;"></i>
+                                            </button>
+                                        </form>
+                                        
                                         <button 
                                             onclick="openPaymentModal(
                                                 '{{ $invoice->id }}', 

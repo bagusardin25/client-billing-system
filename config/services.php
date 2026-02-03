@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Fonnte WhatsApp API
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for Fonnte WhatsApp messaging service.
+    | Get your token at https://fonnte.com
+    |
+    */
+    'fonnte' => [
+        'token' => env('FONNTE_TOKEN'),
+    ],
+
 ];
