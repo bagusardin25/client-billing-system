@@ -13,8 +13,16 @@ class CabangUsahaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        // Jika ada client_id, tampilkan cabang untuk client tersebut
+        if ($request->has('client_id')) {
+            $client = Client::findOrFail($request->client_id);
+            $cabangUsaha = CabangUsaha::where('id_client', $client->id)->latest()->paginate(10);
+            return view('Admin.ClientManagement.cabang', compact('client', 'cabangUsaha'));
+        }
+
+        // Default: tampilkan semua cabang
         $cabangUsaha = CabangUsaha::with('client')->latest()->paginate(10);
         return view('Admin.cabang-usaha.index', compact('cabangUsaha'));
     }
@@ -42,6 +50,12 @@ class CabangUsahaController extends Controller
         ]);
 
         CabangUsaha::create($validated);
+
+        // Redirect ke halaman cabang client jika ada id_client
+        if ($request->id_client) {
+            return redirect()->route('cabang-usaha.index', ['client_id' => $request->id_client])
+                ->with('success', 'Cabang usaha berhasil ditambahkan.');
+        }
 
         return redirect()->route('cabang-usaha.index')
             ->with('success', 'Cabang usaha berhasil ditambahkan.');
@@ -80,6 +94,12 @@ class CabangUsahaController extends Controller
 
         $cabangUsaha->update($validated);
 
+        // Redirect ke halaman cabang client jika ada id_client
+        if ($cabangUsaha->id_client) {
+            return redirect()->route('cabang-usaha.index', ['client_id' => $cabangUsaha->id_client])
+                ->with('success', 'Cabang usaha berhasil diperbarui.');
+        }
+
         return redirect()->route('cabang-usaha.index')
             ->with('success', 'Cabang usaha berhasil diperbarui.');
     }
@@ -89,7 +109,14 @@ class CabangUsahaController extends Controller
      */
     public function destroy(CabangUsaha $cabangUsaha): RedirectResponse
     {
+        $clientId = $cabangUsaha->id_client;
         $cabangUsaha->delete();
+
+        // Redirect ke halaman cabang client jika ada id_client
+        if ($clientId) {
+            return redirect()->route('cabang-usaha.index', ['client_id' => $clientId])
+                ->with('success', 'Cabang usaha berhasil dihapus.');
+        }
 
         return redirect()->route('cabang-usaha.index')
             ->with('success', 'Cabang usaha berhasil dihapus.');
