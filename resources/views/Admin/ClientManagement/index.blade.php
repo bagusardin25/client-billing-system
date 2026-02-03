@@ -191,6 +191,14 @@
                                     <input type="number" name="tagihan" id="tagihan" class="form-control" value="0" min="0">
                                 </div>
                             </div>
+
+                            <div class="col-md-6">
+                                <label for="jenis_layanan" class="form-label fw-medium text-dark">Jenis Layanan</label>
+                                <select name="jenis_layanan" id="jenis_layanan" class="form-select">
+                                    <option value="server" selected>Server Bulanan</option>
+                                    <option value="mitra">Bermitra</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer border-0 px-4 pb-4 pt-2">
@@ -288,6 +296,14 @@
                                             {{ DateTime::createFromFormat('!m', $i)->format('F') }}
                                         </option>
                                     @endfor
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="edit_jenis_layanan" class="form-label fw-medium text-dark">Jenis Layanan</label>
+                                <select name="jenis_layanan" id="edit_jenis_layanan" class="form-select">
+                                    <option value="server">Server Bulanan</option>
+                                    <option value="mitra">Bermitra</option>
                                 </select>
                             </div>
                         </div>
@@ -521,6 +537,7 @@
         document.getElementById('edit_tagihan').value = client.tagihan || 0;
         document.getElementById('edit_status_pembayaran').value = client.status_pembayaran || 0;
         document.getElementById('edit_bulan').value = client.bulan || '01';
+        document.getElementById('edit_jenis_layanan').value = client.jenis_layanan || 'server';
         
         // Open modal
         const modal = new bootstrap.Modal(document.getElementById('editClientModal'));

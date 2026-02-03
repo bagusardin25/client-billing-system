@@ -41,6 +41,7 @@ class ClientController extends Controller
             'jabatan' => 'nullable|string|max:255',
             'bulan' => 'nullable|string|max:255',
             'status_pembayaran' => 'nullable|integer|in:0,1',
+            'jenis_layanan' => 'nullable|string|in:mitra,server',
         ]);
 
         $validated['status_pembayaran'] = $validated['status_pembayaran'] ?? 0;
@@ -84,6 +85,7 @@ class ClientController extends Controller
             'jabatan' => 'nullable|string|max:255',
             'bulan' => 'nullable|string|max:255',
             'status_pembayaran' => 'nullable|integer|in:0,1',
+            'jenis_layanan' => 'nullable|string|in:mitra,server',
         ]);
 
         $client->update($validated);
@@ -155,14 +157,28 @@ class ClientController extends Controller
         $nama = $client->nama_client;
         $perusahaan = $client->perusahaan ?? 'Personal';
         $bulan = $client->bulan ?? now()->translatedFormat('F Y');
-        $tagihan = 'Rp ' . number_format($client->tagihan ?? 0, 0, ',', '.');
+        $tagihan = 'Rp. ' . number_format($client->tagihan ?? 0, 0, ',', '.');
+        $kode_client = $client->kode_client ?? '-';
+        
+        // Customize message based on service type
+        $jenisLayanan = $client->jenis_layanan ?? 'server';
+        $layananText = $jenisLayanan === 'mitra' 
+            ? 'tagihan bermitra dengan Pyramidsoft' 
+            : 'tagihan maintenance/server';
 
-        return "Halo *{$nama}* ({$perusahaan}),\n\n"
-            . "Kami ingin mengingatkan mengenai tagihan Anda untuk periode *{$bulan}*.\n\n"
-            . "💰 *Total Tagihan:* {$tagihan}\n\n"
-            . "Mohon segera lakukan pembayaran untuk menghindari keterlambatan.\n\n"
-            . "Terima kasih atas kerjasamanya.\n"
-            . "— *PyramidSoft*";
+        return "Bismillah...\n\n"
+            . "Haloo {$perusahaan},\n\n"
+            . "Izin mengingatkan, untuk {$layananText}\n"
+            . "Nama Usaha/Instansi: {$nama}/{$perusahaan}\n"
+            . "Bulan: {$bulan}\n"
+            . "Biaya: {$tagihan}\n\n"
+            . "doa terbaik untuk kebahagiaan {$perusahaan} :)\n\n"
+            . "⚠ PERHATIAN : \n"
+            . "REKENING BARU : BSI 7262 970 714 a.n Buceu Sandri Prihatun\n\n"
+            . "Best Regards,\n"
+            . "Pyramidsoft & all team\n"
+            . "Cek Nota Tagihan:\n"
+            . route('public.invoice', $kode_client);
     }
 
     /**
