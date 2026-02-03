@@ -14,7 +14,7 @@ class ClientController extends Controller
      */
     public function index(): View
     {
-        $clients = Client::latest()->paginate(10);
+        $clients = Client::with(['invoices', 'cabangUsaha'])->latest()->paginate(10);
         return view('Admin.ClientManagement.index', compact('clients'));
     }
 

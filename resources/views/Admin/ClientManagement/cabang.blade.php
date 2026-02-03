@@ -14,7 +14,7 @@
             <p class="text-secondary small mb-0">Daftar seluruh cabang usaha milik <span class='fw-bold text-primary'>{{ $client->perusahaan ?? $client->nama_client }}</span></p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('clients.show', $client) }}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+            <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
                 <i class="bi bi-arrow-left"></i>
                 <span>Kembali</span>
             </a>
