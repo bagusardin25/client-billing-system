@@ -12,9 +12,21 @@ class ClientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $clients = Client::with(['invoices', 'cabangUsaha'])->latest()->paginate(10);
+        $query = Client::with(['invoices', 'cabangUsaha'])->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_client', 'like', "%{$search}%")
+                    ->orWhere('perusahaan', 'like', "%{$search}%")
+                    ->orWhere('no_telepon', 'like', "%{$search}%")
+                    ->orWhere('kode_client', 'like', "%{$search}%");
+            });
+        }
+
+        $clients = $query->paginate(10)->withQueryString();
         return view('Admin.ClientManagement.index', compact('clients'));
     }
 
