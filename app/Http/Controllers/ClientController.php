@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -168,9 +169,24 @@ class ClientController extends Controller
     {
         $nama = $client->nama_client;
         $perusahaan = $client->perusahaan ?? 'Personal';
-        $bulan = $client->bulan ?? now()->translatedFormat('F Y');
-        $tagihan = 'Rp. ' . number_format($client->tagihan ?? 0, 0, ',', '.');
-        $kode_client = $client->kode_client ?? '-';
+        
+        // Find the latest unpaid invoice for this client
+        $invoice = Invoice::where('id_client', $client->id)
+            ->where('status_pembayaran', 0)
+            ->latest()
+            ->first();
+        
+        // Use invoice data if available, otherwise fall back to client data
+        if ($invoice) {
+            $bulanFormatted = \DateTime::createFromFormat('!m', $invoice->bulan)->format('F');
+            $bulan = $bulanFormatted . ' ' . $invoice->tahun;
+            $tagihan = 'Rp. ' . number_format($invoice->tagihan ?? 0, 0, ',', '.');
+            $invoiceUrl = route('public.invoice.view', ['kodeInvoice' => $invoice->kode_invoive]);
+        } else {
+            $bulan = $client->bulan ?? now()->translatedFormat('F Y');
+            $tagihan = 'Rp. ' . number_format($client->tagihan ?? 0, 0, ',', '.');
+            $invoiceUrl = route('public.invoice', $client->kode_client);
+        }
         
         // Customize message based on service type
         $jenisLayanan = $client->jenis_layanan ?? 'server';
@@ -190,7 +206,7 @@ class ClientController extends Controller
             . "Best Regards,\n"
             . "Pyramidsoft & all team\n"
             . "Cek Nota Tagihan:\n"
-            . route('public.invoice', $kode_client);
+            . $invoiceUrl;
     }
 
     /**

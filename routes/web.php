@@ -19,6 +19,11 @@ Route::get('/', function () {
 Route::get('/tagihan/{kodeClient}', [PublicInvoiceController::class, 'show'])
     ->name('public.invoice');
 
+// Public Invoice Page by Invoice ID (for receipts)
+Route::get('/invoice/{kodeInvoice}', [PublicInvoiceController::class, 'showInvoice'])
+    ->name('public.invoice.view');
+
+
 // Dashboard
 // Dashboard (Redirect to Clients)
 Route::get('/dashboard', function () {

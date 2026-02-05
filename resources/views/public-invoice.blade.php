@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice# {{ $client->kode_client ?? 'INV' }} - Pyramidsoft</title>
+    <title>Invoice# {{ $client->kode_invoice ?? $client->kode_client ?? 'INV' }} - Pyramidsoft</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -236,7 +236,7 @@
 </head>
 <body>
     <div class="invoice-badge">
-        Invoice# <strong>{{ $client->kode_client ?? 'INV' }}</strong>
+        Invoice# <strong>{{ $client->kode_invoice ?? $client->kode_client ?? 'INV' }}</strong>
     </div>
 
     <div class="main-container">

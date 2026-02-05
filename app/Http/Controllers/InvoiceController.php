@@ -187,6 +187,108 @@ class InvoiceController extends Controller
     }
 
     /**
+     * Mark invoice as paid and optionally send receipt via WhatsApp.
+     */
+    public function markAsPaid(Request $request, Invoice $invoice): RedirectResponse
+    {
+        $validated = $request->validate([
+            'tanggal_pembayaran' => 'required|date',
+            'send_whatsapp' => 'nullable',
+        ]);
+
+        // Update invoice status to paid
+        $invoice->update([
+            'status_pembayaran' => 1,
+            'tanggal_pembayaran' => $validated['tanggal_pembayaran'],
+        ]);
+
+        // Also update client's payment status so public invoice page reflects the change
+        if ($invoice->client) {
+            $invoice->client->update([
+                'status_pembayaran' => 1,
+                'bulan' => DateTime::createFromFormat('!m', $invoice->bulan)->format('F') . ' ' . $invoice->tahun,
+            ]);
+        }
+
+        // Send WhatsApp receipt if checkbox is checked
+        if ($request->has('send_whatsapp')) {
+            return $this->sendReceiptWhatsApp($invoice);
+        }
+
+        return redirect()->route('invoices.index')
+            ->with('success', 'Invoice berhasil ditandai lunas.');
+    }
+
+    /**
+     * Send receipt via WhatsApp with public invoice link.
+     */
+    private function sendReceiptWhatsApp(Invoice $invoice): RedirectResponse
+    {
+        $client = $invoice->client;
+
+        if (!$client || empty($client->no_telepon)) {
+            return redirect()->route('invoices.index')
+                ->with('warning', 'Invoice berhasil dilunasi, tetapi client tidak memiliki nomor telepon.');
+        }
+
+        $whatsapp = new \App\Services\WhatsAppService();
+
+        if (!$whatsapp->isConfigured()) {
+            return redirect()->route('invoices.index')
+                ->with('warning', 'Invoice berhasil dilunasi, tetapi FONNTE_TOKEN belum dikonfigurasi.');
+        }
+
+        $message = $this->generateReceiptMessage($invoice);
+        $result = $whatsapp->sendMessage($client->no_telepon, $message);
+
+        // Log the message
+        \App\Models\WhatsAppLog::create([
+            'client_id' => $client->id,
+            'invoice_id' => $invoice->id,
+            'phone' => $client->no_telepon,
+            'message' => $message,
+            'status' => ($result['status'] ?? false) ? 'sent' : 'failed',
+            'response' => $result,
+        ]);
+
+        if ($result['status'] ?? false) {
+            return redirect()->route('invoices.index')
+                ->with('success', "Invoice berhasil dilunasi dan kwitansi dikirim ke {$client->nama_client} via WhatsApp.");
+        }
+
+        return redirect()->route('invoices.index')
+            ->with('warning', 'Invoice berhasil dilunasi, tetapi gagal mengirim kwitansi: ' . ($result['reason'] ?? 'Unknown error'));
+    }
+
+    /**
+     * Generate receipt message for WhatsApp with public invoice link.
+     */
+    private function generateReceiptMessage(Invoice $invoice): string
+    {
+        $client = $invoice->client;
+        $nama = $client->nama_client ?? 'Pelanggan';
+        $perusahaan = $client->perusahaan ?? 'Personal';
+        $bulanFormatted = DateTime::createFromFormat('!m', $invoice->bulan)->format('F');
+        $periode = $bulanFormatted . ' ' . $invoice->tahun;
+        $tagihan = 'Rp ' . number_format($invoice->tagihan, 0, ',', '.');
+        $tanggal = $invoice->tanggal_pembayaran;
+        
+        // Generate public invoice URL using invoice code
+        $publicUrl = route('public.invoice.view', ['kodeInvoice' => $invoice->kode_invoive]);
+
+        return "Halo *{$nama}* ({$perusahaan}),\n\n"
+            . "Terima kasih atas pembayaran Anda! 🙏\n\n"
+            . "✅ *PEMBAYARAN LUNAS*\n\n"
+            . "📋 *No. Invoice:* {$invoice->kode_invoive}\n"
+            . "📅 *Periode:* {$periode}\n"
+            . "💰 *Jumlah:* {$tagihan}\n"
+            . "🗓️ *Tanggal Bayar:* {$tanggal}\n\n"
+            . "Lihat kwitansi lengkap di:\n{$publicUrl}\n\n"
+            . "Terima kasih atas kerjasamanya.\n"
+            . "— *PyramidSoft*";
+    }
+
+    /**
      * Send single invoice via WhatsApp API.
      */
     public function sendInvoiceWhatsApp(Invoice $invoice): RedirectResponse
