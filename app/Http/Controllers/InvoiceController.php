@@ -111,6 +111,18 @@ class InvoiceController extends Controller
             'status_pembayaran' => 'nullable|integer|in:0,1',
         ]);
 
+        // Check availability (Prevent Duplicate)
+        $exists = Invoice::where('id_client', $validated['id_client'])
+            ->where('bulan', $validated['bulan'])
+            ->where('tahun', $validated['tahun'])
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Invoice untuk client ini pada bulan dan tahun tersebut sudah ada.');
+        }
+
         // Get client data
         $client = Client::find($validated['id_client']);
         $validated['nama_client'] = $client->nama_client;
