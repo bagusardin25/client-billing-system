@@ -250,7 +250,7 @@ class ClientController extends Controller
     }
 
     /**
-     * Send WhatsApp reminders to all clients via API.
+     * Send WhatsApp reminders to all clients via API (Queued).
      */
     public function sendBulkWhatsApp(): RedirectResponse
     {
@@ -271,31 +271,20 @@ class ClientController extends Controller
                 ->with('warning', 'Tidak ada client dengan nomor telepon yang valid.');
         }
 
-        $successCount = 0;
-        $failCount = 0;
+        $queuedCount = 0;
 
-        foreach ($clients as $client) {
+        foreach ($clients as $index => $client) {
             $message = $this->generateReminderMessage($client);
-            $result = $whatsapp->sendMessage($client->no_telepon, $message);
-
-            // Log the message
-            \App\Models\WhatsAppLog::create([
-                'client_id' => $client->id,
-                'phone' => $client->no_telepon,
-                'message' => $message,
-                'status' => ($result['status'] ?? false) ? 'sent' : 'failed',
-                'response' => $result,
-            ]);
-
-            if ($result['status'] ?? false) {
-                $successCount++;
-            } else {
-                $failCount++;
-            }
+            
+            // Dispatch Job to Queue
+            // Add delay to spread out the messages (e.g. 5 seconds apart)
+            \App\Jobs\SendWhatsAppJob::dispatch($client->no_telepon, $message)
+                ->delay(now()->addSeconds($index * 5));
+            
+            $queuedCount++;
         }
 
-        $totalClients = $clients->count();
         return redirect()->route('clients.index')
-            ->with('success', "Selesai mengirim pesan ke {$totalClients} client. Berhasil: {$successCount}, Gagal: {$failCount}");
+            ->with('success', "Proses pengiriman ke {$queuedCount} client sedang berjalan di background.");
     }
 }

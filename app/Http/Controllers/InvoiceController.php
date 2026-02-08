@@ -343,7 +343,7 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Send all unpaid invoices via WhatsApp API.
+     * Send all unpaid invoices via WhatsApp API (Queued).
      */
     public function sendBulkInvoiceWhatsApp(Request $request): RedirectResponse
     {
@@ -369,34 +369,22 @@ class InvoiceController extends Controller
                 ->with('warning', 'Tidak ada invoice belum lunas dengan client yang memiliki nomor telepon.');
         }
 
-        $successCount = 0;
-        $failCount = 0;
+        $queuedCount = 0;
 
-        foreach ($invoices as $invoice) {
+        foreach ($invoices as $index => $invoice) {
             $client = $invoice->client;
             $message = $this->generateInvoiceMessage($invoice);
-            $result = $whatsapp->sendMessage($client->no_telepon, $message);
-
-            // Log the message
-            \App\Models\WhatsAppLog::create([
-                'client_id' => $client->id,
-                'invoice_id' => $invoice->id,
-                'phone' => $client->no_telepon,
-                'message' => $message,
-                'status' => ($result['status'] ?? false) ? 'sent' : 'failed',
-                'response' => $result,
-            ]);
-
-            if ($result['status'] ?? false) {
-                $successCount++;
-            } else {
-                $failCount++;
-            }
+            
+            // Dispatch Job to Queue
+            // Add delay to spread out the messages (e.g. 5 seconds apart)
+            \App\Jobs\SendWhatsAppJob::dispatch($client->no_telepon, $message)
+                ->delay(now()->addSeconds($index * 5));
+                
+            $queuedCount++;
         }
 
-        $totalInvoices = $invoices->count();
         return redirect()->route('invoices.index')
-            ->with('success', "Selesai mengirim {$totalInvoices} invoice. Berhasil: {$successCount}, Gagal: {$failCount}");
+            ->with('success', "Proses pengiriman invoice ke {$queuedCount} client sedang berjalan di background.");
     }
 
     /**
