@@ -26,8 +26,8 @@ class PengeluaranController extends Controller
             $query->whereYear('tanggal', $request->tahun);
         }
 
+        $totalPengeluaran = $query->sum('nominal'); // Sum of filtered results (before pagination)
         $pengeluaran = $query->paginate(10)->withQueryString();
-        $totalPengeluaran = $query->sum('nominal');
         
         return view('Admin.pengeluaran.index', compact('pengeluaran', 'totalPengeluaran'));
     }

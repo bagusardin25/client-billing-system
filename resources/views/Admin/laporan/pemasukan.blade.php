@@ -111,7 +111,7 @@
                                 @forelse($invoices as $inv)
                                     <tr>
                                         <td class="px-4 py-3 text-sm">{{ \Carbon\Carbon::parse($inv->tanggal_pembayaran)->format('d M Y') }}</td>
-                                        <td class="px-4 py-3 text-sm fw-medium text-primary">{{ $inv->kode_invoive }}</td>
+                                        <td class="px-4 py-3 text-sm fw-medium text-primary">{{ $inv->kode_invoice }}</td>
                                         <td class="px-4 py-3 text-sm fw-bold text-dark">{{ $inv->client->nama_client }}</td>
                                         <td class="px-4 py-3 text-sm fw-bold text-success text-end">Rp {{ number_format($inv->tagihan, 0, ',', '.') }}</td>
                                     </tr>

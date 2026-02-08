@@ -24,7 +24,7 @@ class PublicInvoiceController extends Controller
      */
     public function showInvoice(string $kodeInvoice): View
     {
-        $invoice = Invoice::where('kode_invoive', $kodeInvoice)->firstOrFail();
+        $invoice = Invoice::where('kode_invoice', $kodeInvoice)->firstOrFail();
         $invoice->load('client');
         
         // Prepare data for the view (merge invoice data with client)
@@ -36,7 +36,7 @@ class PublicInvoiceController extends Controller
             'tagihan' => $invoice->tagihan,
             'bulan' => DateTime::createFromFormat('!m', $invoice->bulan)->format('F') . ' ' . $invoice->tahun,
             'tanggal_pembayaran' => $invoice->tanggal_pembayaran,
-            'kode_invoice' => $invoice->kode_invoive,
+            'kode_invoice' => $invoice->kode_invoice,
         ];
 
         return view('public-invoice', ['client' => $data]);

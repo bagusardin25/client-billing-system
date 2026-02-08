@@ -86,7 +86,7 @@ class InvoiceController extends Controller
                     Invoice::create([
                         'id_client' => $client->id,
                         'nama_client' => $client->nama_client,
-                        'kode_invoive' => 'INV-' . date('Ymd') . '-' . mt_rand(1000, 9999), // Simple unique code
+                        'kode_invoice' => 'INV-' . date('Ymd') . '-' . mt_rand(1000, 9999), // Simple unique code
                         'bulan' => $request->bulan,
                         'tahun' => $request->tahun,
                         'tagihan' => $amount,
@@ -103,7 +103,7 @@ class InvoiceController extends Controller
         // Single Client Logic (Existing)
         $validated = $request->validate([
             'id_client' => 'required|exists:clients,id',
-            'kode_invoive' => 'nullable|string|max:255',
+            'kode_invoice' => 'nullable|string|max:255',
             'bulan' => 'nullable|string|max:10',
             'tahun' => 'nullable|string|max:10',
             'tagihan' => 'nullable|numeric|min:0',
@@ -134,8 +134,8 @@ class InvoiceController extends Controller
         }
 
         // Generate invoice code if not provided
-        if (empty($validated['kode_invoive'])) {
-            $validated['kode_invoive'] = 'INV-' . date('Ymd') . '-' . str_pad(Invoice::count() + 1, 4, '0', STR_PAD_LEFT);
+        if (empty($validated['kode_invoice'])) {
+            $validated['kode_invoice'] = 'INV-' . date('Ymd') . '-' . str_pad(Invoice::count() + 1, 4, '0', STR_PAD_LEFT);
         }
 
         Invoice::create($validated);
@@ -169,7 +169,7 @@ class InvoiceController extends Controller
     {
         $validated = $request->validate([
             'id_client' => 'required|exists:clients,id',
-            'kode_invoive' => 'nullable|string|max:255',
+            'kode_invoice' => 'nullable|string|max:255',
             'bulan' => 'nullable|string|max:10',
             'tahun' => 'nullable|string|max:10',
             'tagihan' => 'nullable|numeric|min:0',
@@ -286,12 +286,12 @@ class InvoiceController extends Controller
         $tanggal = $invoice->tanggal_pembayaran;
         
         // Generate public invoice URL using invoice code
-        $publicUrl = route('public.invoice.view', ['kodeInvoice' => $invoice->kode_invoive]);
+        $publicUrl = route('public.invoice.view', ['kodeInvoice' => $invoice->kode_invoice]);
 
         return "Halo *{$nama}* ({$perusahaan}),\n\n"
             . "Terima kasih atas pembayaran Anda! 🙏\n\n"
             . "✅ *PEMBAYARAN LUNAS*\n\n"
-            . "📋 *No. Invoice:* {$invoice->kode_invoive}\n"
+            . "📋 *No. Invoice:* {$invoice->kode_invoice}\n"
             . "📅 *Periode:* {$periode}\n"
             . "💰 *Jumlah:* {$tagihan}\n"
             . "🗓️ *Tanggal Bayar:* {$tanggal}\n\n"
@@ -397,7 +397,7 @@ class InvoiceController extends Controller
         $perusahaan = $client->perusahaan ?? 'Personal';
         $periode = $invoice->bulan . ' ' . $invoice->tahun;
         $tagihan = 'Rp ' . number_format($invoice->tagihan, 0, ',', '.');
-        $kode = $invoice->kode_invoive;
+        $kode = $invoice->kode_invoice;
 
         return "Halo *{$nama}* ({$perusahaan}),\n\n"
             . "Berikut adalah invoice Anda:\n\n"

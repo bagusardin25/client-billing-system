@@ -181,7 +181,7 @@ class ClientController extends Controller
             $bulanFormatted = \DateTime::createFromFormat('!m', $invoice->bulan)->format('F');
             $bulan = $bulanFormatted . ' ' . $invoice->tahun;
             $tagihan = 'Rp. ' . number_format($invoice->tagihan ?? 0, 0, ',', '.');
-            $invoiceUrl = route('public.invoice.view', ['kodeInvoice' => $invoice->kode_invoive]);
+            $invoiceUrl = route('public.invoice.view', ['kodeInvoice' => $invoice->kode_invoice]);
         } else {
             $bulan = $client->bulan ?? now()->translatedFormat('F Y');
             $tagihan = 'Rp. ' . number_format($client->tagihan ?? 0, 0, ',', '.');

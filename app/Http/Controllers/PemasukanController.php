@@ -26,8 +26,8 @@ class PemasukanController extends Controller
             $query->whereYear('tanggal', $request->tahun);
         }
 
+        $totalPemasukan = $query->sum('nominal'); // Sum of filtered results (before pagination)
         $pemasukan = $query->paginate(10)->withQueryString();
-        $totalPemasukan = $query->sum('nominal'); // Sum of filtered results
         
         return view('Admin.pemasukan.index', compact('pemasukan', 'totalPemasukan'));
     }
